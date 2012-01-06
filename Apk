@@ -7,6 +7,74 @@ setup(){
   values=("$TARGET_DEVICE" "$TARGET_PWD" "$TARGET_APK")
   size=3;
 }
+# Commands
+processCommands(){
+  # Delete package from device
+  if [ "$1" == "delete" ]
+  then
+    checkValid "$TARGET_DEVICE"
+    if [ $? = 1  ] ; then
+    echo "Removing $2 from $TARGET_DEVICE"
+    adb -s $TARGET_DEVICE uninstall $2; fi
+  fi
+
+  # Install package to device
+  if [ "$1" == "install" ]
+  then
+    checkValid "$TARGET_DEVICE"
+    if [ $? = 1  ] ; then
+      echo "Install $1 to $TARGET_DEVICE"
+      adb -s $TARGET_DEVICE install -r $1
+    fi
+  fi
+
+  # Build the application
+  if [ "$1" == "build" ]
+  then
+    # Pass the build folder to the build function
+    buildFile "$TARGET_PWD"
+  fi
+
+  # Update the device ID
+  if [ "$1" == "device" ]
+  then
+    echo "Please Enter Device"
+    read -a TARGET_DEVICE
+  fi
+
+  # Update the location of the source
+  if [ "$1" == "location" ]
+  then
+    echo "Please Enter full Location path"
+    read -a TARGET_PWD
+    echo "Target Directory: $TARGET_PWD"
+  fi
+
+  if [ "$1" == "setapk" ]
+  then
+    echo "Enter path to APK"
+    read -a TARGET_APK
+    echo "Target APK: $TARGET_APK"
+  fi
+
+
+  # Output the varaibles 
+  if [ "$1" == "echo" ]
+  then
+    echoProperties "$keys" "$values" "$size"
+  fi
+
+  # Send the targeted APK to the device
+  if [ "$1" == "sendApk" ] 
+  then
+    # Check that the variables are set before attempting
+    checkValid "$TARGET_DEVICE"
+    if [ $? = 1  ] ; then
+      echo "Sending APK to $TARGET_DEVICE"
+      adb -s $TARGET_DEVICE install -r $TARGET_APK 
+    fi
+  fi
+}
 
 # Pull the location of the script
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -24,72 +92,10 @@ PROPS="$DIR/values.properties"
 # Hard coded variables
 # TODO find a way to automate this
 setup
-# Commands
-
-# Delete package from device
-if [ "$1" == "delete" ]
-then
-  if test "${TARGET_DEVICE-default value}" ; then
-  echo "Removing $2 from $TARGET_DEVICE"
-  adb -s $TARGET_DEVICE uninstall $2; fi
-fi
-
-# Install package to device
-if [ "$1" == "install" ]
-then
-  if test "${TARGET_DEVICE-default value}" ; then
-    echo "Install $1 to $TARGET_DEVICE"
-    adb -s $TARGET_DEVICE install -r $1
-  fi
-fi
-
-# Build the application
-if [ "$1" == "build" ]
-then
-  # Pass the build folder to the build function
-  buildFile "$TARGET_PWD"
-fi
-
-# Update the device ID
-if [ "$1" == "device" ]
-then
- echo "Please Enter Device"
- read -a TARGET_DEVICE
-fi
-
-# Update the location of the source
-if [ "$1" == "location" ]
-then
-  echo "Please Enter full Location path"
-  read -a TARGET_PWD
-  echo "Target Directory: $TARGET_PWD"
-fi
-
-if [ "$1" == "setapk" ]
-then
-  echo "Enter path to APK"
-  read -a TARGET_APK
-  echo "Target APK: $TARGET_APK"
-fi
-
-
-# Output the varaibles 
-if [ "$1" == "echo" ]
-then
- echoProperties "$keys" "$values" "$size"
-fi
-
-# Send the targeted APK to the device
-if [ "$1" == "sendApk" ] 
-then
-  # Check that the variables are set before attempting
-  checkValid "$TARGET_DEVICE"
-  if [ $? = 1  ] ; then
-    echo "Sending APK to $TARGET_DEVICE"
-    adb -s $TARGET_DEVICE install -r $TARGET_APK 
-  fi
-fi
-
+for var in "$@"
+do
+    processCommands "$var"
+done
 setup
 # Persist the variables
 writeProperties "$keys" "$values" "$size" "$PROPS"
