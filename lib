@@ -23,10 +23,6 @@ echoProperties(){
   done
 }
 
-#Add code here to process build function
-buildFile(){
-}
-
 checkValid(){
   if [ -z "${1}" -a "${1+empty}" = "empty" ] ; then
     return 0

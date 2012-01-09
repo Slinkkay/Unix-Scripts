@@ -3,9 +3,11 @@
 # Setup function which re-creates the values and keys when written along with
 # getting initial values
 setup(){
-  keys=("TARGET_DEVICE" "TARGET_PWD" "TARGET_APK")
-  values=("$TARGET_DEVICE" "$TARGET_PWD" "$TARGET_APK")
-  size=3;
+  keys=("TARGET_DEVICE" "TARGET_PWD" "TARGET_APK" 
+        "TARGET_BUILD" "TARGET_PACKAGE" )
+  values=("$TARGET_DEVICE" "$TARGET_PWD" "$TARGET_APK" 
+          "$TARGET_BUILD" "$TARGET_PACKAGE" )
+  size=5;
 }
 # Commands
 processCommands(){
@@ -14,17 +16,17 @@ processCommands(){
   then
     checkValid "$TARGET_DEVICE"
     if [ $? = 1  ] ; then
-    echo "Removing $2 from $TARGET_DEVICE"
-    adb -s $TARGET_DEVICE uninstall $2; fi
+    echo "Removing $TARGET_PACKAGE from $TARGET_DEVICE"
+    adb -s $TARGET_DEVICE uninstall $TARGET_PACKAGE; fi
   fi
 
   # Install package to device
   if [ "$1" == "install" ]
   then
     checkValid "$TARGET_DEVICE"
-    if [ $? = 1  ] ; then
-      echo "Install $1 to $TARGET_DEVICE"
-      adb -s $TARGET_DEVICE install -r $1
+    if [ $? == 1  ] ; then
+      echo "Install $TARGET_APK  to $TARGET_DEVICE"
+      adb -s $TARGET_DEVICE install -r $TARGET_APK
     fi
   fi
 
@@ -32,18 +34,23 @@ processCommands(){
   if [ "$1" == "build" ]
   then
     # Pass the build folder to the build function
-    buildFile "$TARGET_PWD"
+    checkValid "$TARGET_BUILD"
+    if [ "$?" == 1 ] ; then
+      echo "$DIR/$TARGET_BUILD"
+      . $DIR/$TARGET_BUILD
+      buildfile "$TARGET_PWD"
+    fi
   fi
 
   # Update the device ID
-  if [ "$1" == "device" ]
+  if [ "$1" == "setdev" ]
   then
     echo "Please Enter Device"
     read -a TARGET_DEVICE
   fi
 
   # Update the location of the source
-  if [ "$1" == "location" ]
+  if [ "$1" == "setloc" ]
   then
     echo "Please Enter full Location path"
     read -a TARGET_PWD
@@ -61,7 +68,24 @@ processCommands(){
   # Output the varaibles 
   if [ "$1" == "echo" ]
   then
+    # Do a write so that the files are listed 
+    writeProperties "$keys" "$values" "$size" "$PROPS"
+    setup
     echoProperties "$keys" "$values" "$size"
+  fi
+  
+  # Set the build file to query
+  if [ "$1" == "setbuild" ]
+  then
+     echo "Enter build target"
+     # Perhaps adding a list of build targets?
+     read -a TARGET_BUILD
+  fi
+
+  if [ "$1" == "setpack" ]
+  then
+    echo "Enter Package: "
+    read -a TARGET_PACKAGE
   fi
 
   # Send the targeted APK to the device
@@ -69,7 +93,7 @@ processCommands(){
   then
     # Check that the variables are set before attempting
     checkValid "$TARGET_DEVICE"
-    if [ $? = 1  ] ; then
+    if [ $? == 1  ] ; then
       echo "Sending APK to $TARGET_DEVICE"
       adb -s $TARGET_DEVICE install -r $TARGET_APK 
     fi
