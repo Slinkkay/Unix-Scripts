@@ -9,7 +9,7 @@ class Properties:
 
   def printAll( self ):
     for item in self.mList:
-      print item.key + " " + item.value
+      print item.key + " : " + item.value
 
   def setPair( self, pair ):
     for item in self.mList:
@@ -24,7 +24,7 @@ class Properties:
         return item.value
 
 def printProps( props ):
-  print props.printAll()
+  props.printAll()
 
 def printCommands( props ):
   print "Command List"
