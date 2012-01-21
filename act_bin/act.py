@@ -5,7 +5,10 @@ from subprocess import call
 
 def signal_handler(signal, frame):
   print "Cleaning up"
-  writeProperties( valuePath, line )
+  f = open(valuePath, 'w+')
+
+  # Write out the new values
+  pickle.dump( props, f )
   sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -15,7 +18,6 @@ binLoc = os.path.split(os.path.abspath(__file__))
 sys.path.append(binLoc[0]+"/libs/")
 
 # import all the modules from the libary
-from lib import processCommand, writeProperties, readFile
 from shared import Properties
 import shared
 
