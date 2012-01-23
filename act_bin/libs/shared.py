@@ -48,14 +48,45 @@ def setModule( props ):
   ret = raw_input()
   props.setPair( Item( 'modules', ret ) )
 
+def addModule( props ):
+  previous = props.getValue( 'modules' )
+  if previous == None:
+    previous = ''
+    print 'No Modules '
+  else: 
+    print 'Current Modules: ' + previous 
+  ret = raw_input()
+  props.setPair( Item( 'modules', previous + ' ' + ret ) )
+
 def printModule( props ):
   print props.getValue( 'modules' )
 
+# Pull the list of commands from the modules
+def commandList( props ):
+  # Init only the shared commands
+  modules = [ getCommands() ]
+  
+  # Load up the modules
+  imports = props.getValue( 'modules' )
+  if imports != None:
+    imports = imports.split()
+    for importStr in imports:
+      try:
+        module = __import__(importStr)
+      except ImportError:
+        print "No Module named " + importStr
+        continue
+      modules.append( module.getCommands() )
+  return modules 
+
+# The commands for the shared module
 def getCommands():
   commands ={
     'printModule':printModule,
     'setModule':setModule,
     "printProps":printProps,
+    'addModule':addModule,
     "printCommands":printCommands
   }
   return commands
+

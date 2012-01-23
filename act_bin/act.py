@@ -3,14 +3,18 @@
 import os, sys, signal, pickle
 from subprocess import call
 
-def signal_handler(signal, frame):
-  print "Cleaning up"
+def cleanup():
   f = open(valuePath, 'w+')
 
   # Write out the new values
   pickle.dump( props, f )
   sys.exit(0)
 
+def signal_handler(signal, frame):
+  print "Cleaning up"
+  cleanup()
+
+# Register the signal Handler for ^C
 signal.signal(signal.SIGINT, signal_handler)
 
 # Add the libs path to the python path
@@ -18,8 +22,7 @@ binLoc = os.path.split(os.path.abspath(__file__))
 sys.path.append(binLoc[0]+"/libs/")
 
 # import all the modules from the libary
-from shared import Properties
-import shared
+from shared import Properties, commandList
 
 # Setup the path to the object file
 valuePath = binLoc[0] + '/values.object'
@@ -33,34 +36,19 @@ except IOError:
   props = Properties()
 
 if (len(sys.argv) > 1):
-  commandList = sys.argv[1:] 
-  for command in commandList:
-    # check the command against the internal commands
-    internal = shared.getCommands()
-    try:
-      internal[command]( props )
-      continue
-    except KeyError:
-      pass
-    # if the command isn't internal check the modules
-    imports = props.getValue( 'modules' )
-    if imports == None:
-      break
-    imports = imports.split()
-    for importStr in imports:
-      try:
-        module = __import__(importStr)
-      except ImportError:
-        print "No Module named " + importStr
-        continue
-      commands = module.getCommands()
+  
+  # Grab the commands from console  
+  commandItems = sys.argv[1:] 
+
+  # Load up the commands
+  modules = commandList( props )
+   
+  # Cycle the commands
+  for command in commandItems:
+    for commands in modules:
       try:
         commands[command]( props )
-        continue
       except KeyError:
         pass
 
-f = open(valuePath, 'w+')
-
-# Write out the new values
-pickle.dump( props, f )
+cleanup() 
