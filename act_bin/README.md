@@ -4,6 +4,12 @@ act is a utility used to help streamline atomic commands. The utility can have
 any number of modules which can be defined. Then by identifying which modules
 are to be access a set of tasks can be listed and exected in order. 
 
+## Setup
+The setup for the utility is based around running its commands to setup the
+properties. The commands which can be run are avaliable though the
+'printCommands' command. This command will cycle though any of the specified
+modules and list their commands.
+
 ## Commands
 The idea around act comes from the need to execute commands in a repetitive 
 fashion. This means that before a command is executed all needed information is
