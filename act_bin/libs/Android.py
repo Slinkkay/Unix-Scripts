@@ -37,13 +37,36 @@ def setPackage( props ):
   newItem = Item( 'package', package )
   props.setPair( newItem )
 
+def runApp( props ):
+  activity = props.getValue( 'activity' )
+  package = props.getValue( 'package' )
+  device = props.getValue( 'device' )
+  if activity == None or package == None or device == None:
+    print 'Activity or Package or device not set'
+    return
+  action = 'android.intent.action.MAIN'
+  appCommand = 'adb -s ' + device + ' shell am' \
+    ' start -a ' + action +  ' -n ' + package + '/'+ activity
+  print appCommand
+  call(appCommand.split())
+  
+
+def setApp( props ):
+  print "Enter activity"
+  activity = raw_input()
+  newItem = Item( 'activity', activity )
+  props.setPair( newItem )
+  
+
 def getCommands():
   commands = {
-    "sendApk":sendApk,
-    "deleteApk":deleteApk,
+    "install":sendApk,
+    "delete":deleteApk,
     "setpack":setPackage,
     "setapk":setApk,
-    "setdev":setDevice
+    "setdev":setDevice,
+    "run":runApp,
+    "setactivity":setApp
   }
   return commands
 
