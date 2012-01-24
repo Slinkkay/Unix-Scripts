@@ -1,4 +1,4 @@
-from subprocess import call
+from subprocess import call, Popen, PIPE
 from shared import Item
 
 # Send the target Apk to the device
@@ -37,6 +37,28 @@ def setPackage( props ):
   newItem = Item( 'package', package )
   props.setPair( newItem )
 
+def exec_command(cmd_args):
+    proc = Popen(cmd_args, stdout=PIPE, stderr=PIPE)
+    (stdout, stderr) = proc.communicate()
+    proc.wait()
+    return (stdout, stderr, proc.returncode)
+
+def selectDevice( props ):
+  stdout, stderr, retcode = exec_command("adb devices".split())
+  breakout = stdout.split('\n')
+  print 'Select Device:'
+  devices = breakout[1:]
+  count = 1
+  for line in devices:
+    splitRet = line.split()                                                                                            
+    if len(splitRet) != 0:
+      print "{0} : {1}".format(count, line.split()[0])
+      count = count + 1 
+  selection = raw_input()
+  newItem = Item( 'device', devices[int(selection) - 1].split()[0] ) 
+  props.setPair( newItem )
+ 
+
 def runApp( props ):
   activity = props.getValue( 'activity' )
   package = props.getValue( 'package' )
@@ -66,7 +88,8 @@ def getCommands():
     "setapk":setApk,
     "setdev":setDevice,
     "run":runApp,
-    "setactivity":setApp
+    "setactivity":setApp,
+    "seldev":selectDevice
   }
   return commands
 
