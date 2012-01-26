@@ -79,6 +79,15 @@ def setApp( props ):
   newItem = Item( 'activity', activity )
   props.setPair( newItem )
   
+def printAndroid( props ):
+  print "Android Properties"
+  activity = props.getValue( 'activity' )
+  package = props.getValue( 'package' )
+  device = props.getValue( 'device' )
+  apk = props.getValue( 'apk') 
+  propList = [ activity, package, device, apk ]
+  for item in propList:
+    print item
 
 def getCommands():
   commands = {
@@ -89,6 +98,7 @@ def getCommands():
     "setdev":setDevice,
     "run":runApp,
     "setactivity":setApp,
+    "printAndroid":printAndroid,
     "seldev":selectDevice
   }
   return commands
