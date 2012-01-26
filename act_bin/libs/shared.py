@@ -1,3 +1,5 @@
+import pickle
+
 class Item:
   def __init__(self, key, value):
     self.key = key
@@ -22,6 +24,7 @@ class Properties:
     for item in self.mList:
       if key == item.key:
         return item.value
+
 
 def printProps( props ):
   props.printAll()
@@ -79,6 +82,22 @@ def commandList( props ):
       modules.append( module.getCommands() )
   return modules 
 
+def loadProfile( props ):
+  print "Enter Profile Name"
+  name = raw_input()
+  name = name + '.profile'
+  file = open( props.getValue('binLoc')+name, 'r' )
+  inProp = pickle.load(file)
+  for item in inProp.mList:
+    props.setPair( item )
+
+def saveProfile( props ):
+  print "Enter Profile Name"
+  name = raw_input()
+  name = name + '.profile'
+  file = open (props.getValue('binLoc')+name, 'w')
+  pickle.dump( props, file)
+
 # The commands for the shared module
 def getCommands():
   commands ={
@@ -86,6 +105,8 @@ def getCommands():
     'setModule':setModule,
     "printProps":printProps,
     'addModule':addModule,
+    'loadProfile':loadProfile,
+    'saveProfile':saveProfile,
     "printCommands":printCommands
   }
   return commands

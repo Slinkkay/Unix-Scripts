@@ -22,10 +22,12 @@ binLoc = os.path.split(os.path.abspath(__file__))
 sys.path.append(binLoc[0]+"/libs/")
 
 # import all the modules from the libary
-from shared import Properties, commandList
+from shared import Properties, Item, commandList
+
+binItem = Item( 'binLoc', binLoc[0] +'/' )
 
 # Setup the path to the object file
-valuePath = binLoc[0] + '/values.object'
+valuePath = binItem.value + 'values.object'
 
 try:
   f = open ( valuePath, 'r')
@@ -34,6 +36,8 @@ try:
   call(["rm", valuePath])
 except IOError:
   props = Properties()
+
+props.setPair( binItem )
 
 if (len(sys.argv) > 1):
   
