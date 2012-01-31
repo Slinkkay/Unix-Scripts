@@ -87,6 +87,7 @@ def loadProfile( props ):
   name = raw_input()
   name = name + '.profile'
   file = open( props.getValue('binLoc')+name, 'r' )
+  props.mList = []
   inProp = pickle.load(file)
   for item in inProp.mList:
     props.setPair( item )
