@@ -1,4 +1,4 @@
-import pickle
+import pickle, os
 
 class Item:
   def __init__(self, key, value):
@@ -82,15 +82,18 @@ def commandList( props ):
       modules.append( module.getCommands() )
   return modules 
 
+def cleanPropLoad( props, path ):
+  props.mList=[]
+  file = open( path, 'r' )
+  inProp = pickle.load( file )
+  for item in inProp.mList:
+    props.setPair( item )
+
 def loadProfile( props ):
   print "Enter Profile Name"
   name = raw_input()
   name = name + '.profile'
-  file = open( props.getValue('binLoc')+name, 'r' )
-  props.mList = []
-  inProp = pickle.load(file)
-  for item in inProp.mList:
-    props.setPair( item )
+  cleanPropLoad( props, props.getValue('binLoc')+name )
 
 def saveProfile( props ):
   print "Enter Profile Name"
@@ -98,6 +101,26 @@ def saveProfile( props ):
   name = name + '.profile'
   file = open (props.getValue('binLoc')+name, 'w')
   pickle.dump( props, file)
+
+def selectProfile( props ):
+  print "Select Profile Name"
+  location = props.getValue( 'binLoc' )
+  profileSelection = []
+  for dirname, dirnames, filenames in os.walk(location):
+    for filename in filenames:
+      if ".profile" in filename:
+        name = filename[0:filename.find( '.profile' ) ]
+        path = os.path.join(dirname, filename)
+        profileSelection.append( [ name, path ])
+  count = 0 
+  for pair in profileSelection:
+    print "{0} : {1}".format(count + 1, pair[0]) 
+    count = count + 1
+  
+  selection = int( raw_input() ) - 1
+  targetPath = profileSelection[selection][1]
+  cleanPropLoad( props, targetPath )
+
 
 # The commands for the shared module
 def getCommands():
@@ -108,6 +131,7 @@ def getCommands():
     'addModule':addModule,
     'loadProfile':loadProfile,
     'saveProfile':saveProfile,
+    'selProfile':selectProfile,
     "printCommands":printCommands
   }
   return commands
