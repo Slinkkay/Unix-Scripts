@@ -14,6 +14,7 @@ function fish_prompt --description 'Write out the prompt'
 		set -g __fish_prompt_normal (set_color normal)
 	end
 
+	set fish_color_git yellow
 	set_color 565656
 	printf (date "+%H:%M:%S ")
 
